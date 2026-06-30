@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/Solution Items/" />
+  <Project Path="CustomerCommLib.Tests/CustomerCommLib.Tests.csproj" />
+  <Project Path="CustomerCommLib/CustomerCommLib.csproj" />
+</Solution>
