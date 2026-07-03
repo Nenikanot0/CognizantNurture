@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using FirstWebAPI.Models;
 using FirstWebAPI.Filters;
+using Microsoft.AspNetCore.Authorization;
 
 namespace FirstWebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     //[CustomAuthFilter]
+    [Authorize]
     public class EmployeeController : ControllerBase
     {
         private List<Employee> employees;
@@ -63,15 +65,15 @@ namespace FirstWebAPI.Controllers
             };
         }
 
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public ActionResult<List<Employee>> Get()
-        {
-            throw new Exception("Testing Exception Filter");
+        //[HttpGet]
+        //[ProducesResponseType(StatusCodes.Status200OK)]
+        //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        //public ActionResult<List<Employee>> Get()
+        //{
+        //    throw new Exception("Testing Exception Filter");
 
-            //return Ok(employees);
-        }
+        //    //return Ok(employees);
+        //}
 
         [HttpPost]
         public IActionResult Post([FromBody] Employee employee)

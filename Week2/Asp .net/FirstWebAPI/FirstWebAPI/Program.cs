@@ -1,31 +1,65 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
+
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers(options =>
-{
-    options.Filters.Add<FirstWebAPI.Filters.CustomExceptionFilter>();
-});
+string securityKey = "12345678901234567890123456789012";
+var symmetricSecurityKey =
+    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(securityKey));
+
+builder.Services.AddControllers();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+
+            ValidIssuer = "mySystem",
+            ValidAudience = "myUsers",
+            IssuerSigningKey = symmetricSecurityKey
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddEndpointsApiExplorer();
 
-builder.Services.AddSwaggerGen(options =>
+builder.Services.AddSwaggerGen(c =>
 {
-    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "Swagger Demo",
-        Version = "v1",
-        Description = "TBD",
+        Version = "v1"
+    });
 
-        Contact = new Microsoft.OpenApi.Models.OpenApiContact
-        {
-            Name = "John Doe",
-            Email = "john@xyzmail.com",
-            Url = new Uri("https://www.example.com")
-        },
+    // JWT support in Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "Enter: Bearer {token}",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey
+    });
 
-        License = new Microsoft.OpenApi.Models.OpenApiLicense
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
         {
-            Name = "License Terms",
-            Url = new Uri("https://www.example.com")
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Id="Bearer",
+                    Type=ReferenceType.SecurityScheme
+                }
+            },
+            new List<string>()
         }
     });
 });
@@ -33,13 +67,11 @@ builder.Services.AddSwaggerGen(options =>
 var app = builder.Build();
 
 app.UseSwagger();
-
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Swagger Demo");
-});
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
