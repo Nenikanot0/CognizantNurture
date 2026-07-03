@@ -1,6 +1,9 @@
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<FirstWebAPI.Filters.CustomExceptionFilter>();
+});
 
 builder.Services.AddEndpointsApiExplorer();
 
