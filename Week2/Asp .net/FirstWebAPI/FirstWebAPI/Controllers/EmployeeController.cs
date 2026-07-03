@@ -6,7 +6,7 @@ namespace FirstWebAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [CustomAuthFilter]
+    //[CustomAuthFilter]
     public class EmployeeController : ControllerBase
     {
         private List<Employee> employees;
@@ -81,10 +81,32 @@ namespace FirstWebAPI.Controllers
             return Ok(employee);
         }
 
-        [HttpPut]
-        public IActionResult Put([FromBody] Employee employee)
+        [HttpPut("{id}")]
+        public ActionResult<Employee> Put(int id, [FromBody] Employee employee)
         {
-            return Ok(employee);
+            // Check invalid id
+            if (id <= 0)
+            {
+                return BadRequest("Invalid employee id");
+            }
+
+            // Find employee
+            var existingEmployee = employees.FirstOrDefault(e => e.Id == id);
+
+            if (existingEmployee == null)
+            {
+                return BadRequest("Invalid employee id");
+            }
+
+            // Update values
+            existingEmployee.Name = employee.Name;
+            existingEmployee.Salary = employee.Salary;
+            existingEmployee.Permanent = employee.Permanent;
+            existingEmployee.Department = employee.Department;
+            existingEmployee.Skills = employee.Skills;
+            existingEmployee.DateOfBirth = employee.DateOfBirth;
+
+            return Ok(existingEmployee);
         }
     }
 }
